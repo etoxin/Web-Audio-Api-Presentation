@@ -229,6 +229,45 @@ angular.module('webAudioApp', [])
 //            $scope.changeFreq();
 //        });
 
+        var midi, data;
+        // request MIDI access
+        navigator.requestMIDIAccess({
+            sysex: false
+        }).then(onMIDISuccess, onMIDIFailure);
+
+        function onMIDISuccess(midiAccess) {
+            var inputs = midiAccess.inputs.values();
+            // loop over all available inputs and listen for any MIDI input
+            for (var input = inputs.next();
+                 input && !input.done;
+                 input = inputs.next()) {
+                // each time there is a midi message call the onMIDIMessage function
+                input.value.onmidimessage = onMIDIMessage;
+            }
+        }
+        function onMIDIMessage(message) {
+            // this gives us our [command/channel, note, velocity] data.
+            $scope.$apply(function () {
+
+
+                switch (message.data[1]){
+                    case 14:
+                        $scope.frequency = Math.floor(( message.data[2] / 80 ) * 300) + 20;
+                        $scope.changeFreq();
+                        break;
+                    case 15:
+                        $scope.detune = Math.floor(( message.data[2] / 80 ) * 50);
+                        $scope.changeFreq();
+                        break;
+
+                }
+
+
+            });
+
+        }
+        function onMIDIFailure(error){console.log(error)}
+
     }])
     .controller('midiController',['$scope', function($scope) {
 
