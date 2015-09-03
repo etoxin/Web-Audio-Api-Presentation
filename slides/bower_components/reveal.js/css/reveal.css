@@ -296,6 +296,8 @@ body {
 
 .reveal code{
 	text-align: left;
+	font-size:25px;
+	line-height: 1.5em;
 }
 
 .reveal table th,
