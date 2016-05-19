@@ -1,0 +1,71 @@
+<html>
+    <head>
+        <title></title>
+        <style>
+            html body{
+                margin: 0;
+                padding: 0;
+            }
+            #target div {
+                height: 10vh;
+                width: 5vw;
+                background: red;
+                display: block;
+                float: left;
+            }
+        </style>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.3/jquery.min.js"></script>
+        <script>
+            $( document ).ready(function(){
+                var midi;
+                var data;
+
+                var element = $('#target');
+
+                function onMIDISuccess(midiAccess) {
+                    var inputs = midiAccess.inputs.values();
+                    // loop over all available inputs
+                    for (var input = inputs.next();
+                         input && !input.done;
+                         input = inputs.next()) {
+                        // call the onMIDIMessage function
+                        input.value.onmidimessage = onMIDIMessage;
+                    }
+                }
+                function onMIDIMessage(message) {
+                    // [command/channel, note, velocity] data.
+                    console.log('MIDI data', message.data);
+
+                    var one = message.data[2];
+                    var two = message.data[1];
+                    var three = message.data[2];
+
+
+                    var thing = '<div style="background-color: rgb(' + one + ',' + two + ',' + three + ')"></div>'
+
+                    console.log(thing);
+
+                    element.prepend(thing);
+
+                    if($('#target div').length > 200){
+                        $('#target div:last-child').remove();
+                    }
+
+                }
+                function onMIDIFailure(error){console.log(error)}
+
+                navigator.requestMIDIAccess({
+                    sysex: false
+                }).then(onMIDISuccess, onMIDIFailure);
+            });
+
+
+
+
+        </script>
+
+    </head>
+    <body>
+        <div id="target"></div>
+    </body>
+</html>
